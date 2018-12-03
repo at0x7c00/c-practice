@@ -9,7 +9,7 @@ int main(void){
 
   printf("max sort:%d\n",SHRT_MAX);
   printf("max int:%d\n",INT_MAX);
-  printf("max long:%d\n",LONG_MAX);
+  printf("max long:%ld\n",LONG_MAX);
 
 
 
