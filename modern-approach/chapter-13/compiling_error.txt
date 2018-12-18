@@ -1,0 +1,4 @@
+D:\atom-workspace\c-practice\modern-approach\chatper13\fiddle.c: In function 'main':
+D:\atom-workspace\c-practice\modern-approach\chatper13\fiddle.c:12:17: error: invalid initializer
+   char str3[] = str2;
+                 ^~~~
