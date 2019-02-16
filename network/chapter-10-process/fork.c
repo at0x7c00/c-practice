@@ -21,5 +21,5 @@ int main(void){
   }else{
     printf("Parent process:gval=%d,lval=%d\n",gval,lval);
   }
-
+  return 0;
 }

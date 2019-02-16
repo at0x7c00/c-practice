@@ -18,4 +18,6 @@ int main(void){
     puts("End parent process");
   }
 
+  return 0;
+
 }
