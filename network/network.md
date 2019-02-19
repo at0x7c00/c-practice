@@ -54,3 +54,15 @@ sigemptyset(&act.sa_mask);
 act.sa_flags = 0;
 sigaction(SIGCHLD,&act,0);
 ```
+## Inter process communication
+Use `pipe` to create input/output file descriptor for a process.
+```c
+#include<unistd.h>
+int pipe(int filedes[2]);
+```
+filedes[0] is output file descriptor;
+filedes[1] is input file descriptor.
+
+Every process can use pipe to write and read data.
+> Can only parent and child processes use pipe to communication?
+> No,Any process who can get referecce of pipe file descriptor can communication with pipe.
