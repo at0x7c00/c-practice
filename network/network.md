@@ -85,3 +85,31 @@ struct timeval {
 }
 ```
 The nice thing about `select` is that it doesn't block. The select function returns only when a client initiates a connection or sends data. At this point, a call to accept does not block, but simply returns.
+
+# Multicast and broadcast
+## Set TTL
+```c
+int send_sock;
+int time_live = 64;// ttl
+...
+send_sock = socket(PF_INET,SOCK_DGRAM,0);
+setsocket(send_sock,IPPROTO_IP,IP_MULTICAST_TTL,&time_live,sizeof(time_live));
+...
+```
+## Use socket option to join multicast group
+```c
+...
+int recv_sock;
+struct ip_mreq join_adr;
+...
+recv_sock = socket(PF_INET,SOCK_DGRAM,0);
+...
+join_adr.imr_multiaddr.s_addr = <multicast_group_addr>;
+join_adr.imr_interface.s_addr = <host_to_join_multicast_group>;
+setsocket(recv_sockt,IPPROTO_IP,IP_ADDR_MEMBERSHIP,(void*)&join_adr,sizeof(join_adr));
+...
+```
+## Send and receive message
+In terms of simple,Send a message to a multicast address(Class D IP address,each of it means a multicast group)  using UDP function `sendto` on the server side.
+
+On the other side,use a UPD socket to listen a multicast address,use `recvfrom` function to recive message.
