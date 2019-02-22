@@ -24,7 +24,9 @@ int main(int argc,char *argv[]){
   int str_len;
 
   pid = fork();
+  printf("pid=%d\n",pid);
   if(pid == 0){//receive process
+    printf("receive process...\n");
     struct ip_mreq join_addr;
     recv_sock = socket(PF_INET,SOCK_DGRAM,0);
     //bind to local fixed port
@@ -36,22 +38,23 @@ int main(int argc,char *argv[]){
     if(bind(recv_sock,(struct sockaddr*)&local_adr,sizeof(local_adr)) == -1){
       error_handling("receive process:bind() error.");
     }
-
     //set IP_ADD_MEMBERSHIP
     join_addr.imr_multiaddr.s_addr = inet_addr(argv[1]);//fixed multicast address
     join_addr.imr_interface.s_addr = htonl(INADDR_ANY); //dynamic local address
     setsockopt(send_sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,(void*)&join_addr,sizeof(join_addr));
 
     while(1){
+      printf("\n");
       str_len = recvfrom(recv_sock,buf,BUF_SIZE - 1,0,NULL,0);
       if(str_len < 0){
-        printf("recevie disconnect.");
+        printf("recevie disconnect.\n");
         break;
       }
       buf[str_len] = '\0';
-      printf("%s",buf);
+      printf("<%s",buf);
     }
     close(recv_sock);
+
     return 0;
   }else{//send process
     send_sock = socket(PF_INET,SOCK_DGRAM,0);
@@ -69,6 +72,7 @@ int main(int argc,char *argv[]){
       if(strcmp(buf,"Quit-sys") == 0){
         break;
       }
+      printf(">%s\n",buf);
       //It's not need to bind,Send data to multicast address directly
       sendto(send_sock,buf,str_len,0,(struct sockaddr *)&mul_adr,sizeof(mul_adr));
     }
