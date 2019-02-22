@@ -27,11 +27,8 @@ int main(int argc,char *argv[]){
   if(pid == 0){//receive process
     struct ip_mreq join_addr;
     recv_sock = socket(PF_INET,SOCK_DGRAM,0);
-    //set IP_ADD_MEMBERSHIP
-    join_addr.imr_multiaddr.s_addr = inet_addr(argv[1]);//fixed multicast address
-    join_addr.imr_interface.s_addr = htonl(INADDR_ANY); //dynamic local address
-    setsockopt(send_sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,(void*)&join_addr,sizeof(join_addr));
     //bind to local fixed port
+    memset(&local_adr,0,sizeof(local_adr));
     local_adr.sin_family = AF_INET;
     local_adr.sin_addr.s_addr = htonl(INADDR_ANY);
     local_adr.sin_port = htons(atoi(argv[2]));//fixed port
@@ -39,6 +36,11 @@ int main(int argc,char *argv[]){
     if(bind(recv_sock,(struct sockaddr*)&local_adr,sizeof(local_adr)) == -1){
       error_handling("receive process:bind() error.");
     }
+
+    //set IP_ADD_MEMBERSHIP
+    join_addr.imr_multiaddr.s_addr = inet_addr(argv[1]);//fixed multicast address
+    join_addr.imr_interface.s_addr = htonl(INADDR_ANY); //dynamic local address
+    setsockopt(send_sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,(void*)&join_addr,sizeof(join_addr));
 
     while(1){
       str_len = recvfrom(recv_sock,buf,BUF_SIZE - 1,0,NULL,0);
@@ -52,11 +54,12 @@ int main(int argc,char *argv[]){
     close(recv_sock);
     return 0;
   }else{//send process
+    send_sock = socket(PF_INET,SOCK_DGRAM,0);
+
     memset(&mul_adr,0,sizeof(mul_adr));
     mul_adr.sin_family = AF_INET;
     mul_adr.sin_addr.s_addr = inet_addr(argv[1]);//fixed multicast address
     mul_adr.sin_port = htons(atoi(argv[2]));     //fiexed port
-    send_sock = socket(PF_INET,SOCK_DGRAM,0);
 
     //set TTL
     setsockopt(send_sock,IPPROTO_IP,IP_MULTICAST_TTL,(void*)&time_live,sizeof(time_live));
@@ -66,6 +69,7 @@ int main(int argc,char *argv[]){
       if(strcmp(buf,"Quit-sys") == 0){
         break;
       }
+      //It's not need to bind,Send data to multicast address directly
       sendto(send_sock,buf,str_len,0,(struct sockaddr *)&mul_adr,sizeof(mul_adr));
     }
     close(send_sock);
