@@ -15,17 +15,23 @@ int main(int argc,char *argv[]){
   int str_len;
   char buf[MAX_MSG_LEN];
 
+
+  if(argc!=3){
+    printf("Useage:%s <multicast_address> <port>\n",argv[0]);
+    exit(1);
+  }
+
   recv_sock = socket(PF_INET,SOCK_DGRAM,0);
   memset(&addr,0,sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
   addr.sin_port = htons(atoi(argv[2]));
 
-  ///int bind_res = bind(recv_sock,(struct sockaddr *)&addr,sizeof(addr));
-  //if(bind_res == -1){
-  //  printf("bind() error");
-  //  exit(0);
-  //}
+  int bind_res = bind(recv_sock,(struct sockaddr *)&addr,sizeof(addr));
+  if(bind_res == -1){
+    printf("bind() error");
+    exit(0);
+  }
 
   join_addr.imr_multiaddr.s_addr = inet_addr(argv[1]);
   join_addr.imr_interface.s_addr = htonl(INADDR_ANY);

@@ -15,6 +15,11 @@ int main(int argc,char *argv[]){
 
   int time_live = 64;
 
+  if(argc!=3){
+    printf("Useage:%s <multicast_address> <port>\n",argv[0]);
+    exit(1);
+  }
+
   serv_sock = socket(PF_INET,SOCK_DGRAM,0);
   memset(&mul_adr,0,sizeof(mul_adr));
   mul_adr.sin_family = AF_INET;
@@ -25,7 +30,7 @@ int main(int argc,char *argv[]){
 
   while(1){
     str_len = read_line(buf);
-    printf("readLine:%s %d",buf,str_len);
+    //printf("readLine:%s %d",buf,str_len);
     int res = sendto(serv_sock,buf,str_len,0,(struct sockaddr*)&mul_adr,sizeof(mul_adr));
   }
   close(serv_sock);
