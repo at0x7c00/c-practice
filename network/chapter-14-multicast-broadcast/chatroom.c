@@ -4,6 +4,7 @@
 #include<string.h>
 #include<arpa/inet.h>
 #include<sys/socket.h>
+#include<errno.h>
 /*
 send: set IP_MULTICAST_TTL and sendto multicast address with a fixed port
 receive:set IP_ADD_MEMBERSHIP and recvfrom multicast address on local fixed port
@@ -41,7 +42,7 @@ int main(int argc,char *argv[]){
     //set IP_ADD_MEMBERSHIP
     join_addr.imr_multiaddr.s_addr = inet_addr(argv[1]);//fixed multicast address
     join_addr.imr_interface.s_addr = htonl(INADDR_ANY); //dynamic local address
-    setsockopt(send_sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,(void*)&join_addr,sizeof(join_addr));
+    setsockopt(recv_sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,(void*)&join_addr,sizeof(join_addr));
 
     while(1){
       printf("\n");
@@ -54,7 +55,6 @@ int main(int argc,char *argv[]){
       printf("<%s",buf);
     }
     close(recv_sock);
-
     return 0;
   }else{//send process
     send_sock = socket(PF_INET,SOCK_DGRAM,0);
@@ -93,6 +93,7 @@ int read_line(char message[]){
 
 void error_handling(char *msg){
   fputs(msg,stderr);
+  printf("%d:%s\n",errno,strerror(errno));
   fputs("\n",stderr);
   exit(1);
 }
