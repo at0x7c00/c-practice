@@ -5,6 +5,8 @@
 #include<arpa/inet.h>
 #include<sys/socket.h>
 #include<errno.h>
+#include<signal.h>
+#include<sys/wait.h>
 /*
 send: set IP_MULTICAST_TTL and sendto multicast address with a fixed port
 receive:set IP_ADD_MEMBERSHIP and recvfrom multicast address on local fixed port
@@ -12,6 +14,7 @@ receive:set IP_ADD_MEMBERSHIP and recvfrom multicast address on local fixed port
 #define BUF_SIZE 300
 int read_line(char message[]);
 void error_handling(char *msg);
+void read_childproc(int sig);
 int main(int argc,char *argv[]){
 
   int send_sock,recv_sock;
@@ -23,6 +26,12 @@ int main(int argc,char *argv[]){
 
   char buf[BUF_SIZE];
   int str_len;
+
+  struct sigaction act;
+  act.sa_handler = read_childproc;
+  sigemptyset(&act.sa_mask);
+  act.sa_flags = 0;
+  sigaction(SIGCHLD,&act,0);
 
   pid = fork();
   printf("pid=%d\n",pid);
@@ -37,7 +46,7 @@ int main(int argc,char *argv[]){
     local_adr.sin_port = htons(atoi(argv[2]));//fixed port
 
     if(bind(recv_sock,(struct sockaddr*)&local_adr,sizeof(local_adr)) == -1){
-      error_handling("receive process:bind() error.");
+      error_handling("receive process:bind() error:");
     }
     //set IP_ADD_MEMBERSHIP
     join_addr.imr_multiaddr.s_addr = inet_addr(argv[1]);//fixed multicast address
@@ -96,4 +105,12 @@ void error_handling(char *msg){
   printf("%d:%s\n",errno,strerror(errno));
   fputs("\n",stderr);
   exit(1);
+}
+
+void read_childproc(int sig){
+  int status;
+  pid_t id = waitpid(-1,&status,WNOHANG);
+  if(WIFEXITED(status)){
+    WEXITSTATUS(status);// no nothing,just avoid zombie process
+  }
 }
