@@ -113,3 +113,15 @@ setsocket(recv_sockt,IPPROTO_IP,IP_ADDR_MEMBERSHIP,(void*)&join_adr,sizeof(join_
 In terms of simple,Send a message to a multicast address(Class D IP address,each of it means a multicast group)  using UDP function `sendto` on the server side.
 
 On the other side,use a UPD socket to listen a multicast address,use `recvfrom` function to recive message.
+
+## Broadcast
+Two kinds of broadcast:
+* Directed Broadcast: 192.12.34.255
+* Local broadcast: 255.255.255.255
+Sender:Use UDP , set `SO_BROADCAST` option and send to a broadcast address and a fixed port:
+```c
+int so_brd = 1;
+setsockopt(send_soc,SOL_SOCKET,SO_BROADCAST,(void*)&so_brd,sizeof(so_brd));
+```
+
+Receiver: Just use `recvfrom` to listen on a fixed port for UDP message.
