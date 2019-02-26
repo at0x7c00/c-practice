@@ -114,6 +114,78 @@ In terms of simple,Send a message to a multicast address(Class D IP address,each
 
 On the other side,use a UPD socket to listen a multicast address,use `recvfrom` function to recive message.
 
+
+## Broadcast
+Two kinds of broadcast:
+* Directed Broadcast: 192.12.34.255
+* Local broadcast: 255.255.255.255
+Sender:Use UDP , set `SO_BROADCAST` option and send to a broadcast address and a fixed port:
+```c
+int so_brd = 1;
+setsockopt(send_soc,SOL_SOCKET,SO_BROADCAST,(void*)&so_brd,sizeof(so_brd));
+```
+
+Receiver: Just use `recvfrom` to listen on a fixed port for UDP message.
+
+
+# Socket and Standard I/O
+There are two kinds of buffer.I/O buffer and Socket buffer.
+Using standard I/O function to read and write data is faster than system function.
+System functions:
+```c
+int fd1,fd2;
+fd1 = open("news.txt",O_RDONLY);
+fd2 = open("cpy.txt",O_WRONLY|O_CREAT|O_TRUNC);
+...
+read(fd1,buf,sizeof(buf));
+...
+write(fd2,buf,len);
+...
+close(fd1);
+close(fd2);
+```
+Standard I/O functions:
+```c
+FILE * f1;
+FILE * f2;
+f1 = fopen("news.txt","r");
+f2 = fopen("cpy.txt","w);
+...
+fgets(buf,BUF_SIZE,f1);
+...
+fputs(buf,f2);
+...
+fclose(f1);
+fclose(f2);
+```
+Before use standard I/O to read/write socket,we need to transform file descriptor to FILE:
+```c
+#include<stdio.h>
+FILE * fdopen(int fd,const char *mode);
+```
+FILE also can be transform to file descriptor:
+```c
+#include<stdio.h>
+int fileno(FILE * stream);
+```
+Then we can use standard I/O to read/write from/to a socket:
+```c
+int recv_sock;
+char message[BUF_SIZE];
+...
+FILE * readfp = fdopen(recv_sock,"r");
+FILE * writefp = fdopen(recv_sock,"w");
+...
+fgets(message,BUF_SIZE,readfp);
+fputs(message,writefp);
+fflush(writefp);
+...
+fclose(readfp);
+fclose(writefp);
+...
+close(recv_sock);
+```
+
 # Epoll
 Epoll is also file descriptor in nature.use `epoll_create` to create a epoll file descriptor:
 ```c
