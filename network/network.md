@@ -113,3 +113,33 @@ setsocket(recv_sockt,IPPROTO_IP,IP_ADDR_MEMBERSHIP,(void*)&join_adr,sizeof(join_
 In terms of simple,Send a message to a multicast address(Class D IP address,each of it means a multicast group)  using UDP function `sendto` on the server side.
 
 On the other side,use a UPD socket to listen a multicast address,use `recvfrom` function to recive message.
+
+# Epoll
+Epoll is also file descriptor in nature.use `epoll_create` to create a epoll file descriptor:
+```c
+#include<sys/epoll.h>
+int epoll_create(int size);
+```
+Then register the file descriptor which need to be monitored into epoll:
+```c
+#include<sys/epoll.h>
+int epoll_ctl(int epfd,int operation,int fd,struct * epoll_event)
+```
+Available values for operation:
+* EPOLL_CTL_ADD
+* EPOLL_CTL_DEL
+* EPOLL_CTL_MOD
+Define of epoll_event:
+```c
+struct epoll_event event;
+event.data.fd = sockfd;
+event.events = EPOLLIN;
+```
+Available values for `events`:
+* EPOLLIN:There have data to read in
+* EPOLLOUT:The buffer is empty so you can send data
+* EPOLLPRI:Received a OOB data
+* EPOLLRDHUP:
+* EPOLLERR:
+* EPOLLET:
+* EPOLLONESHOT:
