@@ -211,7 +211,7 @@ Available values for `events`:
 * EPOLLIN:There have data to read in
 * EPOLLOUT:The buffer is empty so you can send data
 * EPOLLPRI:Received a OOB data
-* EPOLLRDHUP:
-* EPOLLERR:
-* EPOLLET:
+* EPOLLRDHUP:Disconnect or half shutdown
+* EPOLLERR:error happened
+* EPOLLET:Get event with Edge trigger
 * EPOLLONESHOT:
