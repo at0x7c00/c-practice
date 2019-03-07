@@ -211,7 +211,83 @@ Available values for `events`:
 * EPOLLIN:There have data to read in
 * EPOLLOUT:The buffer is empty so you can send data
 * EPOLLPRI:Received a OOB data
-* EPOLLRDHUP:
-* EPOLLERR:
-* EPOLLET:
+* EPOLLRDHUP:Disconnect or half shutdown
+* EPOLLERR:error happened
+* EPOLLET:Get event with Edge trigger
 * EPOLLONESHOT:
+
+
+# Thread,Mutex and Semaphore
+## Thread
+* Create
+```c
+pthread_t t_id;
+...
+pthread_create(&t_id,NULL,thread_main,(void*)&params);
+...
+void* thread_main(void *arg){
+  int argv = *((int*)arg);
+  ...
+}
+```
+
+* Join
+```c
+if(pthread_join(t_id,&thr_ret) != 0){
+  printf("%d",errno);
+}
+printf("%s\n",(char*)thr_ret);
+```
+ * Detach
+ ```c
+pthread_detach(t_id);
+ ```
+
+## Mutex
+* create and destroy
+```c
+pthread_mutex_t mutex;
+pthread_mutex_init(&mutex,NULL);
+...
+pthread_mutex_destroy(&mutex,NULL);
+```
+* Lock and unlock
+```c
+for(i = 0;i<TIMES;i++){
+  pthread_mutex_lock(&mutex);
+  val++;
+  pthread_mutex_unlock(&mutex);
+}
+```
+## Semaphore
+* create and destroy
+```c
+static sem_t sem_one;
+static sem_t sem_two;
+...
+sem_destroy(&sem_one);
+sem_destroy(&sem_two);
+```
+
+* wait and post
+```c
+void* increment(void *arg){
+  int i;
+  sem_wait(&sem_one);
+  for(i = 0;i<TIMES;i++){
+    val++;
+  }
+  sem_post(&sem_two);
+  return NULL;
+}
+
+void* decrement(void *arg){
+  int i;
+  sem_wait(&sem_two);
+  for(i = 0;i<TIMES;i++){
+    val--;
+  }
+  sem_post(&sem_one);
+  return NULL;
+}
+```
